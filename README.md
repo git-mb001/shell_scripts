@@ -1,6 +1,6 @@
 # shell_scripts
-Public repo with shell (.sh) scripts
-<br/>
+Public repo with shell (.sh) scripts<br/><br/>
+
 Script name: **<ins>stats_cpu_utilization_percore.sh</ins>**<br/>
 Description: This plugin performs numeric calculations on tables with per-core CPU metrics.
              Self detects number of cores and sum amount of cpu per-core extracted data.<br/>
