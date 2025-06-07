@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Plugin name: stats_cpu_utilization_percore.sh
-# Description: This plugin performs numeric calculations on tables with per-core CPU metrics.
+# Description: This plugin performs numeric calculations with per-core CPU metrics.
 #              Self detects number of cores and sum amount of cpu per-core extracted data.
 #
 # Last updated: 2025/06/07  
@@ -21,10 +21,59 @@
 # along with this program.
 #
 
-##
+## 
 ## Initial variables
 ##
-max_cores="99"  # set maximum number of cores; this value can be larger then actual number of cores.
+PROGRAM=${0##*/}
+PROGPATH=${0%/*}
+
+fullusage() {
+cat <<EOF
+
+PROGRAM:
+${PROGRAM}
+
+DESCRIPTION:
+This plugin performs numeric calculations with per-core CPU metrics.
+Self detects number of cores and sum amount of cpu per-core extracted data.
+
+USAGE: 
+${PROGRAM} [-h|--help] | [-m|--max_cores]  
+
+OPTION:
+-h | --help			Print detailed help
+-m | --max_cores  	Set maximum number of cores; this value can be larger then actual number of cores, but shouldn't be lower (default is 100).
+
+EOF
+}
+
+##
+## Main program loop, with selection of functionality of plugin.
+##
+while :
+do
+        case "$1" in
+        -m | --max_cores) max_cores=$2; shift 2;;
+        -h | --help) fullusage; exit;;
+        --) ## End of all options
+             shift;
+             break;;
+        -*) echo "Error: Unknown option: $1"
+             exit 1;;
+         *) ## No more options;
+             break;;
+        esac
+done
+
+##
+## Checking if max_cores has been setup.
+##
+if [[ ${max_cores} == "" ]] | [ -z ${max_cores} ];
+then
+    max_cores=100
+    fullusage
+    echo "Info: Unable to read max_cores initial variable, so used default one (max_cores=100)"
+fi
 
 ##
 ## Function get_cpu_stats() to parse /proc/stat and extract per-core metrics and extracts the 
