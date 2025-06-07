@@ -4,7 +4,8 @@
 # Description: This plugin performs operations on SNMP (ver.2c only, RFC1213(IF-MIB), 32/64-bit counter) metrics to calculate cumulative speed of network interfaces.
 #			   This version gives as a results summaric ${NET_DEVICE} internet speed as volume of information that is sent over a connection
 #              in a measured amount of time presented in G|M|K bits per secend (bps).
-# Update: 2025/05/23  
+#
+# Last updated: 2025/06/07  
 # Author: Marcin Bednarski (e-mail: marcin.bednarski@gmail.com)
 #
 # This program is free software; you can redistribute it and/or
@@ -18,11 +19,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
-# MA 02110-1301, USA
-#
-# Report bugs to:  help@nagios-plugins.org
+# along with this program.
 #
 
 ## 
@@ -33,8 +30,7 @@ time_now=`date +%s`
 DATADIR='/var/lib/centreon/metrics-interfaces'
 STRING32='1.3.6.1.2.1.2.2.1'
 STRING64='ifMIB.ifMIBObjects.ifXTable.ifXEntry'
-WALK="/usr/bin/snmpwalk"
-
+WALK='/usr/bin/snmpwalk'
 PROGRAM=${0##*/}
 PROGPATH=${0%/*}
 
@@ -66,7 +62,7 @@ INTERFACES_DESC: 					${INTERFACES_DESC}
 INFO: To display all available {NET_DEVICE} interfaces for measurement (useful) please use plugin with --display flag.
 
 USAGE: 
-${PROGRAM} -h|--help | -D|--debug | [-ip <address>] | [-x <counter>] | [-C <community>] | [-s|-is <speed>] | [-w <warning>] | [-c <critical>]
+${PROGRAM} -h|--help | -D|--debug | -d | --display | [-ip <address>] | [-x <counter>] | [-C <community>] | [-s|-is <speed>] | [-w <warning>] | [-c <critical>] | [-sev <severity>] | [-t <timeout>]
 
 OPTION:
 -h | --help		Print detailed help
@@ -79,12 +75,13 @@ OPTION:
 -c				Interfaces usage critical (% cumulative usage sum)
 -C				SNMP Community string (ver.2c)
 -sev			Severity, exit status depends on Interface status, eg. unreachable/faulty (WARN|CRIT)
+-t | --timeout
 
 Examples of usage:
-stats_snmp_interfaces64_cumulative.sh -ip 192.168.1.1 -C snmp_string --display
-stats_snmp_interfaces64_cumulative.sh -ip 192.168.1.1 -C snmp_string -s G -x 32 -D
-stats_snmp_interfaces64_cumulative.sh -ip 192.168.1.1 -C snmp_string -s G -x 64 -sev WARN
-stats_snmp_interfaces64_cumulative.sh -ip 192.168.1.1 -C snmp_string -s G -x 64 -w 75 -c 90 -sev CRIT
+stats_snmp_interfaces64_cumulative.sh -ip 192.168.1.1 -C community_string --display
+stats_snmp_interfaces64_cumulative.sh -ip 192.168.1.1 -C community_string -s G -x 32 -D yes
+stats_snmp_interfaces64_cumulative.sh -ip 192.168.1.1 -C community_string -s G -x 64 -sev WARN -t 10
+stats_snmp_interfaces64_cumulative.sh -ip 192.168.1.1 -C community_string -s G -x 64 -w 75 -c 90 -sev CRIT
 
 EOF
 }
@@ -338,15 +335,15 @@ calculate_traffic()
 		if [ ${Ifflg_created} -eq 0 ];
 		then
 			last_sum_time=`cat "${sum_file}" |cut -d":" -f1`
-                        last_sum_Ifin_traffic=`cat "${sum_file}" |cut -d":" -f2`
-                        last_sum_IfOut_traffic=`cat "${sum_file}" |cut -d":" -f3`
+            last_sum_Ifin_traffic=`cat "${sum_file}" |cut -d":" -f2`
+            last_sum_IfOut_traffic=`cat "${sum_file}" |cut -d":" -f3`
 
 			diff_sum_Ifin_traffic=`expr ${last_sum_Ifin_traffic} + ${Ifin_traffic}`
         	diff_sum_IfOut_traffic=`expr ${last_sum_IfOut_traffic} + ${IfOut_traffic}`
 		fi
 		echo "${last_sum_time}:${diff_sum_Ifin_traffic}:${diff_sum_IfOut_traffic}" > ${sum_file}
 	else
-                echo "${time_now}:${Ifin_traffic}:${IfOut_traffic}" > ${sum_file}
+            echo "${time_now}:${Ifin_traffic}:${IfOut_traffic}" > ${sum_file}
         fi
 
 	## Debug
@@ -495,6 +492,7 @@ then
     echo "${time_now}:${IfinOctets}:${IfOutOctets}" > ${file}
     Ifflg_file=0
     Ifflg_created=0
+
 elif [ ${up} -eq 1 2>/dev/null ];
 then
     calculate_traffic
@@ -603,9 +601,9 @@ fi
 
 reset_sum_file()
 {
-sum_file="${DATADIR}/check_snmp_interfaces64_summary_"${DEVICE}"_"${INTERFACES_DESC}""
-time_now=`date +%s`
-echo "${time_now}:0:0" > ${sum_file}
+	sum_file="${DATADIR}/check_snmp_interfaces64_summary_"${DEVICE}"_"${INTERFACES_DESC}""
+	time_now=`date +%s`
+	echo "${time_now}:0:0" > ${sum_file}
 }
 
 display_results()
@@ -645,7 +643,7 @@ fi
 ##
 if [ ${Ifflg_created} -eq 0 ] && [ ${Ifflg_file} -eq 0 ];
 then
-       	echo "${status}; Cumulative bandwidth of ${DEVICE} interfaces ${INTERFACES_DESC}: (Max_throughput:${If_speed}) Traffic In:"${Ifin_traffic}" "${Ifin_prefix}"b/s ("${Ifin_usage}"%), Out:"${IfOut_traffic}" "${IfOut_prefix}"b/s ("${IfOut_usage}"%) |traffic_in="${traffic_in}"Bits/s traffic_out="${traffic_out}"Bits/s"
+       	echo "${status} :: Cumulative bandwidth of ${DEVICE} interfaces ${INTERFACES_DESC}: (Max_throughput:${If_speed}) Traffic In:"${Ifin_traffic}" "${Ifin_prefix}"b/s ("${Ifin_usage}"%), Out:"${IfOut_traffic}" "${IfOut_prefix}"b/s ("${IfOut_usage}"%) |traffic_in="${traffic_in}"Bits/s traffic_out="${traffic_out}"Bits/s"
 		reset_sum_file
        	exit ${exit_code}
 else

@@ -4,7 +4,7 @@
 # Description: This plugin performs numeric calculations on tables with per-core CPU metrics.
 #              Self detects number of cores and sum amount of cpu per-core extracted data.
 #
-# Last updated: 2025/05/22  
+# Last updated: 2025/06/07  
 # Author: Marcin Bednarski (e-mail: marcin.bednarski@gmail.com)
 #
 # This program is free software; you can redistribute it and/or
@@ -18,11 +18,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
-# MA 02110-1301, USA
-#
-# Report bugs to:  help@nagios-plugins.org
+# along with this program.
 #
 
 ##

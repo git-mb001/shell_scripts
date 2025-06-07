@@ -3,9 +3,9 @@
 # Plugin name: stats_snmp_interfaces64.sh
 # Description: This plugin performs SNMP (ver.2c only, RFC1213(IF-MIB), 32/64-bit counter) checks to collect metrics and status of network interface.
 #   		   Conversions results in summaric ${DEVICE} internet speed as volume of information that is sent over a connection
-#              in a measured amount of time presented in G|M|K bits per secend (bps).
+#              in a measured amount of time, presented in G|M|K bits per secend (bps).
 #
-# Last updated: 2025/05/22  
+# Last updated: 2025/06/07  
 # Author: Marcin Bednarski (e-mail: marcin.bednarski@gmail.com)
 #
 # This program is free software; you can redistribute it and/or
@@ -19,11 +19,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
-# MA 02110-1301, USA
-#
-# Report bugs to:  help@nagios-plugins.org
+# along with this program.
 #
 
 ## 
@@ -34,9 +30,8 @@ time_now=`date +%s`
 DATADIR='/var/lib/centreon/metrics-interfaces'
 STRING32='1.3.6.1.2.1.2.2.1'
 STRING64='ifMIB.ifMIBObjects.ifXTable.ifXEntry'
-IFMIB="1.3.6.1.2.1.2.2.1.2"
-WALK="/usr/bin/snmpwalk"
-
+IFMIB='1.3.6.1.2.1.2.2.1.2'
+WALK='/usr/bin/snmpwalk'
 PROGRAM=${0##*/}
 PROGPATH=${0%/*}
 
@@ -51,34 +46,35 @@ PROGRAM:
 ${PROGRAM}
 
 DESCRIPTION:
-This Nagios plugin performs SNMP (ver.2c only) checks to collect statistics and status of network interface.
-Plugin, during first two executions should create buffer files with calculated metrics. 
+This Nagios plugin performs SNMP (ver.2c only) checks for specified interface to collect metrics and status of network interface.
+Plugin, during first two executions should create txt files with timestamp and calculated metrics. 
 
-INFO: To display all available device interfaces for measurement (useful), please use stats_snmp_interfaces64.sh plugin with --display flag.
+INFO: To display all available tested device interfaces for measurement, please use stats_snmp_interfaces64.sh plugin with -d|--display flag.
 
-DATADIR (buffer files location): ${DATADIR}
+DATADIR (files location): ${DATADIR}
 
 USAGE: 
-${PROGRAM} -h|--help | -d|--display | -D|--debug | [-ip <address>] | [-if <interface>] | [-x <counter>] | [-C <community>] | [-s | -is <speed>] | [-w <warning>] [-c <critical>] | [-sev <severity>]
+${PROGRAM} -h|--help | -d|--display | -D|--debug | [-ip <address>] | [-if <interface>] | [-x <counter>] | [-C <community>] | [-s | -is <speed>] | [-w <warning>] [-c <critical>] | [-sev <severity>] | [-t <timeout>]
 
 OPTION:
 -h | --help		Print detailed help
--d | --display  Display all interfaces
--D | --debug    Debug interfaces (yes|no)
--ip 			Host address to check
+-d | --display  Display all interfaces (just viewwise)
+-D | --debug    Debug interfaces (yes|no), default is no.
+-ip 			Specify host IP address for check
 -if				Specify DEVICE Interface (port)
 -x				Counter (32|64), default is 64.
 -s | -is		Interface Speed (15G|10G|8G|4G|G|100M|10M|1M)
 -w				Interface usage warning (% overall usage)
 -c				Interface usage critical (% overall usage)
 -C				SNMP Community string (ver.2c)
--sev			Severity, exit status depends on Interface status, eg. unreachable/faulty (WARN|CRIT)
+-sev			Severity, exit status depends on Interface status and its overall usage (WARN|CRIT)
+-t				Timeout, default is 5s
 
 Examples of usage:
-stats_snmp_interfaces64.sh -ip 192.168.1.1 -C snmp_string --display
-stats_snmp_interfaces64.sh -ip 192.168.1.1 -C snmp_string -if eth0 -s G -x 32 -D
-stats_snmp_interfaces64.sh -ip 192.168.1.1 -C snmp_string -if eth0 -s G -x 64 -sev WARN
-stats_snmp_interfaces64.sh -ip 192.168.1.1 -C snmp_string -if eth0 -s 10G -x 64 -w 75 -c 90 -sev CRIT
+stats_snmp_interfaces64.sh -ip 192.168.1.1 -C community_string --display
+stats_snmp_interfaces64.sh -ip 192.168.1.1 -C community_string -if eth0 -s G -x 32 -D yes -t 10
+stats_snmp_interfaces64.sh -ip 192.168.1.1 -C community_string -if eth0 -s G -x 64 -sev WARN
+stats_snmp_interfaces64.sh -ip 192.168.1.1 -C community_string -if eth0 -s 10G -x 64 -w 75 -c 90 -sev CRIT -t 15
 
 EOF
 }
@@ -88,14 +84,14 @@ EOF
 ##
 display() {
 
-echo "Displaying interfaces for host ${IP}:"
+echo "Displaying interfaces for host address ${IP}:"
 
 if [ -n "${IP}" ];
 then  
-        ${WALK} -v 2c -t 5 -r 2 -c ${COMMUNITY} ${IP} .1.3.6.1.2.1.31.1.1.1.1  
+        ${WALK} -v 2c -t ${t} -r 1 -c ${community} ${IP} .1.3.6.1.2.1.31.1.1.1.1  
         echo -e "\n\n"
         echo "Aliases:"
-        ${WALK} -v 2c -t 5 -r 2 -c ${COMMUNITY} ${IP} .1.3.6.1.2.1.31.1.1.1.18
+        ${WALK} -v 2c -t ${t} -r 1 -c ${community} ${IP} .1.3.6.1.2.1.31.1.1.1.18
 else
         echo "UNKNOWN, Cannot display interfacess.. exiting!"
         exit -1
@@ -123,8 +119,9 @@ do
         -ip | --address) IP=$2; shift 2;;
         -if | --interface) Interface=$2; shift 2;;
         -x | --counter) counter=$2; shift 2;;
-        -C | --COMMUNITY) COMMUNITY=$2; shift 2;;
-        -sev | --severity) SEVERITY=$2; shift 2;;
+        -C | --community) community=$2; shift 2;;
+        -sev | --severity) severity=$2; shift 2;;
+		-t | --timeout) t=$2; shift 2;; 
         -s | -is | --speed ) speed=$2; shift 2;;
         -D | --debug) test=$2; shift 2;;
         -d | --display) display; exit;;
@@ -139,23 +136,24 @@ do
         esac
 done
 
-## Debug
+## Debug (optional)
 if [[ "${test}" == "yes" ]];
 then
-    echo "Debugging enabled.."
+    echo "DEBUG: Debugging enabled.."
 fi
 
 ##
-## Define required variables
+## Define required and default variables
 ##
 [[ -z "${IP}" ]] && echo "UNKNOWN IP is not specified.." && exit -1
 [[ -z "${Interface}" ]] && echo "UNKNOWN Interface is not specified.." && exit -1
 [[ -z "${counter}" ]] && counter=64
 [[ -z "${speed}" ]] && echo "UNKNOWN Interface is not specified.." && exit -1
-[[ -z "${COMMUNITY}" ]] && echo "UNKNOWN SNMP Community is not specified.." && exit -1
+[[ -z "${community}" ]] && echo "UNKNOWN SNMP Community is not specified.." && exit -1
 [[ -z "${warn}" ]] && warn=80
 [[ -z "${crit}" ]] && crit=90
-[[ -z "${SEVERITY}" ]] && SEVERITY=CRIT
+[[ -z "${severity}" ]] && severity=CRIT
+[[ -z "${t}" ]] && t=5
 
 ##
 ## Speed factor calculation
@@ -200,35 +198,35 @@ fi
 if [ ${Interface} -eq ${Interface} 2>/dev/null ];
 then
         If=${Interface}
-        If_desc=`${WALK} -v 2c -t 5 -r 2 -c ${COMMUNITY} ${IP} ${IFMIB} |awk '{ if ( $0 ~ '"/ifDescr.${If}$/"' ) { print $NF }}'`
-	[ -z "${If_desc}" ] || [[ ${$If_desc} == "" ]] && If_desc=${Interface}
+        If_desc=`${WALK} -v 2c -t ${t} -r 1 -c ${community} ${IP} ${IFMIB} |awk '{ if ( $0 ~ '"/ifDescr.${If}$/"' ) { print $NF }}'`
+		[ -z "${If_desc}" ] || [[ ${$If_desc} == "" ]] && If_desc=${Interface}
 
 elif [[ "${Interface}" =~ ^(eth|bond)* ]];
 then
-        If=`${WALK} -v 2c -t 5 -r 2 -c ${COMMUNITY} ${IP} ${IFMIB} |awk '{ if ( $0 ~ '"/STRING: ${Interface}$/"' ) { print $1 }}' |cut -d'.' -f2`
+        If=`${WALK} -v 2c -t ${t} -r 1 -c ${community} ${IP} ${IFMIB} |awk '{ if ( $0 ~ '"/STRING: ${Interface}$/"' ) { print $1 }}' |cut -d'.' -f2`
         [[ "${If}" == "" ]] && echo "UNKNOWN Interface is not specified or not exist.." && exit -1
         If_desc=${Interface}
 else
-        If=`${WALK} -v 2c -t 5 -r 2 -c ${COMMUNITY} ${IP} ${IFMIB} |awk '{ if ( $0 ~ '"/STRING: ${Interface}$/"' ) { print $1 }}' |awk -F'.' '{ print $NF }'`
-        If_desc=`${WALK} -v 2c -t 5 -r 2 -c ${COMMUNITY} ${IP} ${MIB} |awk '{ if ( $0 ~ '"/ifDescr.${If}$/"' ) { print $NF }}'`
-	[ -z "${If_desc}" ] || [[ ${$If_desc} == "" ]] && If_desc=${Interface}
+        If=`${WALK} -v 2c -t ${t} -r 1 -c ${community} ${IP} ${IFMIB} |awk '{ if ( $0 ~ '"/STRING: ${Interface}$/"' ) { print $1 }}' |awk -F'.' '{ print $NF }'`
+        If_desc=`${WALK} -v 2c -t ${t} -r 2 -c ${community} ${IP} ${MIB} |awk '{ if ( $0 ~ '"/ifDescr.${If}$/"' ) { print $NF }}'`
+		[ -z "${If_desc}" ] || [[ ${$If_desc} == "" ]] && If_desc=${Interface}
 fi
 
 ## Debug
 if [[ "${test}" == "yes" ]];
 then
-    echo "Interface number/desc: If=${If} If_desc=${If_desc} If_speed=${If_speed}"
+    echo "DEBUG: Interface number/desc: If=${If} If_desc=${If_desc} If_speed=${If_speed}"
 fi
 
 ##
 ## State of Interface
 ##
-state_if=`${WALK} -v 2c -t 5 -r 2 -c ${COMMUNITY} ${IP} 1.3.6.1.2.1.2.2.1.8.$If | awk '{ print $4 }'`
+state_if=`${WALK} -v 2c -t ${t} -r 1 -c ${community} ${IP} 1.3.6.1.2.1.2.2.1.8.$If | awk '{ print $4 }'`
 
 ## Debug
 if [[ "${test}" == "yes" ]];
 then
-    echo "Interface status: ${state_if}"
+    echo "DEBUG: Interface status: ${state_if}"
 fi
 
 ##
@@ -300,7 +298,7 @@ calculate_traffic()
         ## Debug
         if [[ "${test}" == "yes" ]];
         then
-                echo "DEBUG :: File created: ${DATADIR}/check_snmp_interfaces64_${If}_${IP}"
+                echo "DEBUG: File created: ${DATADIR}/check_snmp_interfaces64_${If}_${IP}"
         fi
 
         if [ -e "${file}" ]; 
@@ -331,7 +329,7 @@ calculate_traffic()
         ## Debug
         if [[ "${test}" == "yes" ]];
         then
-                echo "DEBUG :: Time:${time_now} Last_IfinBits:${last_IfinBits} Last_IfOutBits:${last_IfOutBits} counter=${counter}"
+                echo "DEBUG: Time:${time_now} Last_IfinBits:${last_IfinBits} Last_IfOutBits:${last_IfOutBits} counter=${counter}"
         fi
 
         diff_IfinBits=`expr ${IfinBits} - ${last_IfinBits}`
@@ -369,7 +367,7 @@ calculate_traffic()
         ## Debug
         if [[ "${test}" == "yes" ]];
         then
-                echo "DEBUG :: diff_IfinBits=${diff_IfinBits} total=${total} Ifin_traffic=${Ifin_traffic} counter=${counter}"
+                echo "DEBUG: diff_IfinBits=${diff_IfinBits} total=${total} Ifin_traffic=${Ifin_traffic} counter=${counter}"
         fi
 
         if [ ${diff_IfOutBits} -ne 0 ] && [ -n "${last_IfOutBits}" ];
@@ -402,7 +400,7 @@ calculate_traffic()
         ## Debug
         if [[ "${test}" == "yes" ]];
         then
-                echo "DEBUG :: diff_IfOutBits=${diff_IfOutBits} total=${total} IfOut_traffic=${IfOut_traffic} counter=${counter}"
+                echo "DEBUG: diff_IfOutBits=${diff_IfOutBits} total=${total} IfOut_traffic=${IfOut_traffic} counter=${counter}"
         fi
 
 		## Exit if NaN result
@@ -411,7 +409,7 @@ calculate_traffic()
 			## Debug
             if [[ "${test}" == "yes" ]];
             then
-                echo "DEBUG :: Exiting; exit_nan_unknown exception.. factor=${factor} Ifin_traffic=${Ifin_traffic} IfOut_traffic=${IfOut_traffic}"
+                echo "DEBUG: Exiting; exit_nan_unknown exception.. factor=${factor} Ifin_traffic=${Ifin_traffic} IfOut_traffic=${IfOut_traffic}"
             fi
             exit_nan_unknown
         fi
@@ -421,14 +419,21 @@ calculate_traffic()
             Ifin_usage=`expr ${Ifin_traffic} \* 100 / ${IfSpeed}`
             IfOut_usage=`expr ${IfOut_traffic} \* 100 / ${IfSpeed}`
         else
-            echo "DEBUG :: UNKNOWN IfSpeed=${IfSpeed}; Cannot calculate Ifusage"
-            exit 3
+			## Debug
+            if [[ "${test}" == "yes" ]];
+            then
+				echo "DEBUG: UNKNOWN IfSpeed=${IfSpeed}; Cannot calculate Ifusage"
+				exit 3
+			else
+				echo "UNKNOWN IfSpeed=${IfSpeed}; Cannot calculate Ifusage"
+				exit 3
+			fi
         fi
 
         # Debug
         if [[ "${test}" == "yes" ]];
         then
-            echo "IfSpeed=${IfSpeed} Ifin_usage=${Ifin_usage} IfOut_usage=${IfOut_usage}"
+            echo "DEBUG: IfSpeed=${IfSpeed} Ifin_usage=${Ifin_usage} IfOut_usage=${IfOut_usage}"
         fi
 
         # For Graphs
@@ -526,11 +531,10 @@ display_results()
         ##
 		## Finaly display results
         ##
-		echo "${status}; Interface ${If_desc} (${If_speed}) Traffic In:"${Ifin_traffic}" "${Ifin_prefix}"b/s ("${Ifin_usage}"%), Out:"${IfOut_traffic}" "${IfOut_prefix}"b/s ("${IfOut_usage}"%) - Total RX Bits In:"${IfinBits}" "${IfinBits_unit}"b, Out:"${IfOutBits}" "${IfOutBits_unit}"b|traffic_in="${traffic_in}"Bits/s traffic_out="${traffic_out}"Bits/s"
+		echo "${status} :: Interface ${If_desc} (${If_speed}) Traffic In:"${Ifin_traffic}" "${Ifin_prefix}"b/s ("${Ifin_usage}"%), Out:"${IfOut_traffic}" "${IfOut_prefix}"b/s ("${IfOut_usage}"%) - Total RX Bits In:"${IfinBits}" "${IfinBits_unit}"b, Out:"${IfOutBits}" "${IfOutBits_unit}"b|traffic_in="${traffic_in}"Bits/s traffic_out="${traffic_out}"Bits/s"
         exit $exit_code
 }
 # END of display_results()
-
 
 ## 
 ## Third main program loop, depends on secend main program loop.
@@ -542,14 +546,14 @@ if [ ${up} -eq 1 ]; then
         if [ ${counter} -eq 32 ];
         then
             # Counter32
-            IfinOctets=`${WALK} -v 2c -t 5 -r 2 -c ${COMMUNITY} ${IP} 1.3.6.1.2.1.2.2.1.10.${If} |awk '{ if ( $1 ~ 'Counter32' ) { print $NF }}'`
-            IfOutOctets=`${WALK} -v 2c -t 5 -r 2 -c ${COMMUNITY} ${IP} 1.3.6.1.2.1.2.2.1.16.${If} |awk '{ if ( $1 ~ 'Counter32' ) { print $NF }}'`
+            IfinOctets=`${WALK} -v 2c -t ${t} -r 2 -c ${community} ${IP} 1.3.6.1.2.1.2.2.1.10.${If} |awk '{ if ( $1 ~ 'Counter32' ) { print $NF }}'`
+            IfOutOctets=`${WALK} -v 2c -t ${t} -r 2 -c ${community} ${IP} 1.3.6.1.2.1.2.2.1.16.${If} |awk '{ if ( $1 ~ 'Counter32' ) { print $NF }}'`
 
         elif [ ${counter} -eq 64 ];
         then
             # Counter64
-            IfinOctets=`${WALK} -v 2c -t 5 -r 2 -c ${COMMUNITY} ${IP} ifMIB.ifMIBObjects.ifXTable.ifXEntry.ifHCInOctets.${If} |awk '{ if ( $1 ~ 'Counter64' ) { print $NF }}'`
-            IfOutOctets=`${WALK} -v 2c -t 5 -r 2 -c ${COMMUNITY} ${IP} ifMIB.ifMIBObjects.ifXTable.ifXEntry.ifHCOutOctets.${If} |awk '{ if ( $1 ~ 'Counter64' ) { print $NF }}'`
+            IfinOctets=`${WALK} -v 2c -t ${t} -r 2 -c ${community} ${IP} ifMIB.ifMIBObjects.ifXTable.ifXEntry.ifHCInOctets.${If} |awk '{ if ( $1 ~ 'Counter64' ) { print $NF }}'`
+            IfOutOctets=`${WALK} -v 2c -t ${t} -r 2 -c ${community} ${IP} ifMIB.ifMIBObjects.ifXTable.ifXEntry.ifHCOutOctets.${If} |awk '{ if ( $1 ~ 'Counter64' ) { print $NF }}'`
         fi
 
         [ -z "${IfinOctets}" ] || [ -z "${IfOutOctets}" ] && echo "UNKNOWN SNMP Timeout or No Response from ${IP}.." && exit 3
