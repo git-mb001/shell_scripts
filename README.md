@@ -15,4 +15,7 @@ Description: This plugin performs operations on SNMP (ver.2c only, RFC1213(IF-MI
              This version gives as a results summaric ${NET_DEVICE} internet speed as volume of information that is sent over a connection
              in a measured amount of time presented in G|M|K bits per secend (bps).<br/>
 
+Plugin name: **<ins>stats_count_mem_usage_app.sh</ins>**<br/>
+Description: This plugin performs precise count memory usage by app. Total usage memory per process is display in GB.
+
 Author: Marcin Bednarski (e-mail: marcin.bednarski@gmail.com)<br/>
