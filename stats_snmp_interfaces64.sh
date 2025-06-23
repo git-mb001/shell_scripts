@@ -2,7 +2,7 @@
 #
 # Plugin name: stats_snmp_interfaces64.sh
 # Description: This plugin performs SNMP (ver.2c only, RFC1213(IF-MIB), 32/64-bit counter) checks to collect metrics and status of network interface.
-#   		   Conversions results in summaric ${DEVICE} internet speed as volume of information that is sent over a connection
+#   	       Conversions results in summaric ${DEVICE} internet speed as volume of information that is sent over a connection
 #              in a measured amount of time, presented in G|M|K bits per secend (bps).
 #
 # Last updated: 2025/06/07  
@@ -57,18 +57,18 @@ USAGE:
 ${PROGRAM} -h|--help | -d|--display | -D|--debug | [-ip <address>] | [-if <interface>] | [-x <counter>] | [-C <community>] | [-s | -is <speed>] | [-w <warning>] [-c <critical>] | [-sev <severity>] | [-t <timeout>]
 
 OPTION:
--h | --help		Print detailed help
--d | --display  Display all interfaces (just viewwise)
--D | --debug    Debug interfaces (yes|no), default is no.
--ip 			Specify host IP address for check
--if				Specify DEVICE Interface (port)
--x				Counter (32|64), default is 64.
--s | -is		Interface Speed (15G|10G|8G|4G|G|100M|10M|1M)
--w				Interface usage warning (% overall usage)
--c				Interface usage critical (% overall usage)
--C				SNMP Community string (ver.2c)
--sev			Severity, exit status depends on Interface status and its overall usage (WARN|CRIT)
--t				Timeout, default is 5s
+-h | --help             Print detailed help
+-d | --display          Display all interfaces (just viewwise)
+-D | --debug            Debug interfaces (yes|no), default is no.
+-ip                     Specify host IP address for check
+-if                     Specify DEVICE Interface (port)
+-x                      Counter (32|64), default is 64.
+-s | -is                Interface Speed (15G|10G|8G|4G|G|100M|10M|1M)
+-w                      Interface usage warning (% overall usage)
+-c                      Interface usage critical (% overall usage)
+-C                      SNMP Community string (ver.2c)
+-sev                    Severity, exit status depends on Interface status and its overall usage (WARN|CRIT)
+-t                      Timeout, default is 5s
 
 Examples of usage:
 stats_snmp_interfaces64.sh -ip 192.168.1.1 -C community_string --display
@@ -121,7 +121,7 @@ do
         -x | --counter) counter=$2; shift 2;;
         -C | --community) community=$2; shift 2;;
         -sev | --severity) severity=$2; shift 2;;
-		-t | --timeout) t=$2; shift 2;; 
+	-t | --timeout) t=$2; shift 2;; 
         -s | -is | --speed ) speed=$2; shift 2;;
         -D | --debug) test=$2; shift 2;;
         -d | --display) display; exit;;
@@ -199,7 +199,7 @@ if [ ${Interface} -eq ${Interface} 2>/dev/null ];
 then
         If=${Interface}
         If_desc=`${WALK} -v 2c -t ${t} -r 1 -c ${community} ${IP} ${IFMIB} |awk '{ if ( $0 ~ '"/ifDescr.${If}$/"' ) { print $NF }}'`
-		[ -z "${If_desc}" ] || [[ ${$If_desc} == "" ]] && If_desc=${Interface}
+	[ -z "${If_desc}" ] || [[ ${$If_desc} == "" ]] && If_desc=${Interface}
 
 elif [[ "${Interface}" =~ ^(eth|bond)* ]];
 then
@@ -209,7 +209,7 @@ then
 else
         If=`${WALK} -v 2c -t ${t} -r 1 -c ${community} ${IP} ${IFMIB} |awk '{ if ( $0 ~ '"/STRING: ${Interface}$/"' ) { print $1 }}' |awk -F'.' '{ print $NF }'`
         If_desc=`${WALK} -v 2c -t ${t} -r 2 -c ${community} ${IP} ${MIB} |awk '{ if ( $0 ~ '"/ifDescr.${If}$/"' ) { print $NF }}'`
-		[ -z "${If_desc}" ] || [[ ${$If_desc} == "" ]] && If_desc=${Interface}
+	[ -z "${If_desc}" ] || [[ ${$If_desc} == "" ]] && If_desc=${Interface}
 fi
 
 ## Debug
@@ -419,15 +419,15 @@ calculate_traffic()
             Ifin_usage=`expr ${Ifin_traffic} \* 100 / ${IfSpeed}`
             IfOut_usage=`expr ${IfOut_traffic} \* 100 / ${IfSpeed}`
         else
-			## Debug
+	    ## Debug
             if [[ "${test}" == "yes" ]];
             then
-				echo "DEBUG: UNKNOWN IfSpeed=${IfSpeed}; Cannot calculate Ifusage"
-				exit 3
-			else
-				echo "UNKNOWN IfSpeed=${IfSpeed}; Cannot calculate Ifusage"
-				exit 3
-			fi
+		echo "DEBUG: UNKNOWN IfSpeed=${IfSpeed}; Cannot calculate Ifusage"
+		exit 3
+	    else
+		echo "UNKNOWN IfSpeed=${IfSpeed}; Cannot calculate Ifusage"
+		exit 3
+	    fi
         fi
 
         # Debug
@@ -447,14 +447,14 @@ calculate_traffic()
 
                 if [ ${Ifin_traffic} -gt 1000 ];
                 then
-                        Ifin_traffic=`expr ${Ifin_traffic} / 1000`
-                        Ifin_prefix="M"
+                    Ifin_traffic=`expr ${Ifin_traffic} / 1000`
+                    Ifin_prefix="M"
                 fi
 
                 if [ ${Ifin_traffic} -gt 1000 ];
                 then
-                        Ifin_traffic=`expr ${Ifin_traffic} / 1000`
-                        Ifin_prefix="G"
+                    Ifin_traffic=`expr ${Ifin_traffic} / 1000`
+                    Ifin_prefix="G"
                 fi
         fi
 
@@ -465,14 +465,14 @@ calculate_traffic()
 
                 if [ ${IfOut_traffic} -gt 1000 ];
                 then
-                        IfOut_traffic=`expr ${IfOut_traffic} / 1000`
-                        IfOut_prefix="M"
+                    IfOut_traffic=`expr ${IfOut_traffic} / 1000`
+                    IfOut_prefix="M"
                 fi
 
                 if [ ${IfOut_traffic} -gt 1000 ];
                 then
-                        IfOut_traffic=`expr ${IfOut_traffic} / 1000`
-                        IfOut_prefix="G"
+                    IfOut_traffic=`expr ${IfOut_traffic} / 1000`
+                    IfOut_prefix="G"
                 fi
         fi
 
@@ -529,9 +529,9 @@ display_results()
         traffic_out=${IfOut_traffic_graph}
 
         ##
-		## Finaly display results
+	## Finaly display results
         ##
-		echo "${status} :: Interface ${If_desc} (${If_speed}) Traffic In:"${Ifin_traffic}" "${Ifin_prefix}"b/s ("${Ifin_usage}"%), Out:"${IfOut_traffic}" "${IfOut_prefix}"b/s ("${IfOut_usage}"%) - Total RX Bits In:"${IfinBits}" "${IfinBits_unit}"b, Out:"${IfOutBits}" "${IfOutBits_unit}"b|traffic_in="${traffic_in}"Bits/s traffic_out="${traffic_out}"Bits/s"
+	echo "${status} :: Interface ${If_desc} (${If_speed}) Traffic In:"${Ifin_traffic}" "${Ifin_prefix}"b/s ("${Ifin_usage}"%), Out:"${IfOut_traffic}" "${IfOut_prefix}"b/s ("${IfOut_usage}"%) - Total RX Bits In:"${IfinBits}" "${IfinBits_unit}"b, Out:"${IfOutBits}" "${IfOutBits_unit}"b|traffic_in="${traffic_in}"Bits/s traffic_out="${traffic_out}"Bits/s"
         exit $exit_code
 }
 # END of display_results()
@@ -561,12 +561,12 @@ if [ ${up} -eq 1 ]; then
         IfinBits=`expr ${IfinOctets} \* 8`
         IfOutBits=`expr ${IfOutOctets} \* 8`
 
-		##
-		## Invoke calculate_traffic() and display_results()
-		##
+	##
+	## Invoke calculate_traffic() and display_results()
+	##
         calculate_traffic
         display_results
 fi
 
+# Normal exit
 exit 0
-
