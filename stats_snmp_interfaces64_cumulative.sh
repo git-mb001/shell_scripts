@@ -2,7 +2,7 @@
 #
 # Plugin name: stats_snmp_interfaces64_cumulative.sh
 # Description: This plugin performs operations on SNMP (ver.2c only, RFC1213(IF-MIB), 32/64-bit counter) metrics to calculate cumulative speed of network interfaces.
-#			   This version gives as a results summaric ${NET_DEVICE} internet speed as volume of information that is sent over a connection
+#	       This version gives as a results summaric ${NET_DEVICE} internet speed as volume of information that is sent over a connection
 #              in a measured amount of time presented in G|M|K bits per secend (bps).
 #
 # Last updated: 2025/06/07  
@@ -54,33 +54,32 @@ DESCRIPTION:
 This plugin calculate cumulative statistics of internet speed for all {NET_DEVICE} specified interfaces.
 Script during first two executions is creating buffers with metrics for cumulation (allow two dry executions).
 
-DATADIR (buffer files location): 	${DATADIR}
-NET_DEVICE: 						${DEVICE}
-INTERFACES FOR CALCULATIONS: 		${INTERFACES}
-INTERFACES_DESC: 					${INTERFACES_DESC}
+DATADIR (buffer files location):        ${DATADIR}
+NET_DEVICE:                             ${DEVICE}
+INTERFACES FOR CALCULATIONS:            ${INTERFACES}
+INTERFACES_DESC:                        ${INTERFACES_DESC}
 
 INFO: To display all available {NET_DEVICE} interfaces for measurement (useful) please use plugin with --display flag.
 
 USAGE: 
-${PROGRAM} -h|--help | -D|--debug | -d | --display | [-ip <address>] | [-x <counter>] | [-C <community>] | [-s|-is <speed>] | [-w <warning>] | [-c <critical>] | [-sev <severity>] | [-t <timeout>]
+${PROGRAM} -h|--help | -D|--debug | -d | --display | [-ip <address>] | [-x <counter>] | [-C <community>] | [-s|-is <speed>] | [-w <warning>] | [-c <critical>] | [-sev <severity>]
 
 OPTION:
--h | --help		Print detailed help
--d | --display  Display all interfaces
--D | --debug    Debug interfaces (yes|no)
--ip 			NET_DEVICE address to check
--x				Counter (32|64), default is 64.
--s | -is		Interfaces Speed (15G|10G|8G|4G|G|100M|10M|1M)
--w				Interfaces usage warning (% cumulative usage sum)
--c				Interfaces usage critical (% cumulative usage sum)
--C				SNMP Community string (ver.2c)
--sev			Severity, exit status depends on Interface status, eg. unreachable/faulty (WARN|CRIT)
--t | --timeout
+-h | --help             Print detailed help
+-d | --display          Display all interfaces
+-D | --debug            Debug interfaces (yes|no)
+-ip                     NET_DEVICE address to check
+-x                      Counter (32|64), default is 64.
+-s | -is                Interfaces Speed (15G|10G|8G|4G|G|100M|10M|1M)
+-w                      Interfaces usage warning (% cumulative usage sum)
+-c                      Interfaces usage critical (% cumulative usage sum)
+-C                      SNMP Community string (ver.2c)
+-sev                    Severity, exit status depends on Interface status, eg. unreachable/faulty (WARN|CRIT)
 
 Examples of usage:
 stats_snmp_interfaces64_cumulative.sh -ip 192.168.1.1 -C community_string --display
 stats_snmp_interfaces64_cumulative.sh -ip 192.168.1.1 -C community_string -s G -x 32 -D yes
-stats_snmp_interfaces64_cumulative.sh -ip 192.168.1.1 -C community_string -s G -x 64 -sev WARN -t 10
+stats_snmp_interfaces64_cumulative.sh -ip 192.168.1.1 -C community_string -s G -x 64 -sev WARN
 stats_snmp_interfaces64_cumulative.sh -ip 192.168.1.1 -C community_string -s G -x 64 -w 75 -c 90 -sev CRIT
 
 EOF
@@ -127,7 +126,7 @@ do
         -C | --COMMUNITY) COMMUNITY=$2; shift 2;;
         -s | -is | --speed ) speed=$2; shift 2;;
         -D | --debug) test=$2; shift 2;;
-		-d | --display) display; exit;;
+	-d | --display) display; exit;;
         -h | --help) fullusage; exit;;
         --) ## End of all options
              shift; 
@@ -335,11 +334,11 @@ calculate_traffic()
 		if [ ${Ifflg_created} -eq 0 ];
 		then
 			last_sum_time=`cat "${sum_file}" |cut -d":" -f1`
-            last_sum_Ifin_traffic=`cat "${sum_file}" |cut -d":" -f2`
-            last_sum_IfOut_traffic=`cat "${sum_file}" |cut -d":" -f3`
+                        last_sum_Ifin_traffic=`cat "${sum_file}" |cut -d":" -f2`
+                        last_sum_IfOut_traffic=`cat "${sum_file}" |cut -d":" -f3`
 
 			diff_sum_Ifin_traffic=`expr ${last_sum_Ifin_traffic} + ${Ifin_traffic}`
-        	diff_sum_IfOut_traffic=`expr ${last_sum_IfOut_traffic} + ${IfOut_traffic}`
+        	        diff_sum_IfOut_traffic=`expr ${last_sum_IfOut_traffic} + ${IfOut_traffic}`
 		fi
 		echo "${last_sum_time}:${diff_sum_Ifin_traffic}:${diff_sum_IfOut_traffic}" > ${sum_file}
 	else
@@ -454,7 +453,7 @@ then
 
         [ -z "${IfinOctets}" ] || [ -z "${IfOutOctets}" ] && echo "UNKNOWN SNMP Timeout or No Response from $IP.." && exit -1
 
-		[ ${IfinOctets} -eq 0 2>/dev/null ] && IfinBits=0 || IfinBits=`expr ${IfinOctets} \* 8`
+	[ ${IfinOctets} -eq 0 2>/dev/null ] && IfinBits=0 || IfinBits=`expr ${IfinOctets} \* 8`
         [ ${IfOutOctets} -eq 0 2>/dev/null ] && IfOutBits=0 || IfOutBits=`expr ${IfOutOctets} \* 8`
 
 elif [ ${down} -eq 1 2>/dev/null ];
@@ -536,8 +535,8 @@ then
         fi
 
         ## For Graphs
-		Ifin_traffic=${sum_Ifin_traffic}
-		IfOut_traffic=${sum_IfOut_traffic}
+	Ifin_traffic=${sum_Ifin_traffic}
+	IfOut_traffic=${sum_IfOut_traffic}
         Ifin_traffic_graph=${Ifin_traffic}
         IfOut_traffic_graph=${IfOut_traffic}
 
@@ -644,7 +643,7 @@ fi
 if [ ${Ifflg_created} -eq 0 ] && [ ${Ifflg_file} -eq 0 ];
 then
        	echo "${status} :: Cumulative bandwidth of ${DEVICE} interfaces ${INTERFACES_DESC}: (Max_throughput:${If_speed}) Traffic In:"${Ifin_traffic}" "${Ifin_prefix}"b/s ("${Ifin_usage}"%), Out:"${IfOut_traffic}" "${IfOut_prefix}"b/s ("${IfOut_usage}"%) |traffic_in="${traffic_in}"Bits/s traffic_out="${traffic_out}"Bits/s"
-		reset_sum_file
+	reset_sum_file
        	exit ${exit_code}
 else
 	echo "UNKNOWN; Cumulative bandwidth of ${DEVICE} interfaces ${INTERFACES_DESC}: (Max_throughput:${If_speed}) statistics buffered during first execution.."
