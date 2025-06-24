@@ -103,7 +103,7 @@ fi
 ##
 exit_nan_unknown() {
     	
-		## Display unknown (NaN) results and exit -1
+	## Display unknown (NaN) results and exit -1
     	echo "UNKNOWN; Interface ${If_desc} (${If_speed}) Traffic In:"NaN" b/s ("NaN"%), Out:"NaN" b/s ("NaN"%) - Total RX Bits In:"NaN" b, Out:"NaN" b|traffic_in="NaN"Bits/s traffic_out="NaN"Bits/s"
     	exit -1
 }
@@ -403,10 +403,10 @@ calculate_traffic()
                 echo "DEBUG: diff_IfOutBits=${diff_IfOutBits} total=${total} IfOut_traffic=${IfOut_traffic} counter=${counter}"
         fi
 
-		## Exit if NaN result
+	## Exit if NaN result
         if [[ "${Ifin_traffic}" == "NaN" ]] || [[ "${IfOut_traffic}" == "NaN" ]];
         then
-			## Debug
+	    ## Debug
             if [[ "${test}" == "yes" ]];
             then
                 echo "DEBUG: Exiting; exit_nan_unknown exception.. factor=${factor} Ifin_traffic=${Ifin_traffic} IfOut_traffic=${IfOut_traffic}"
@@ -568,5 +568,5 @@ if [ ${up} -eq 1 ]; then
         display_results
 fi
 
-# Normal exit
+# Normally exit
 exit 0
