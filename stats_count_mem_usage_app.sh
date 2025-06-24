@@ -51,14 +51,14 @@ EOF
 while :
 do
         case "${1}" in
-		-p | --process_name) max_cores=${2}; shift 2;;
-        -h | --help) fullusage; exit;;
-        --) ## End of all options
-             shift; break;;
-        -*) echo "Error: Unknown option: ${1}"
-             exit 1;;
-         *) ## No more options;
-             break;;
+	    -p | --process_name) PROCESS_NAME="${1}"; shift 2;;
+            -h | --help) fullusage; exit;;
+            --) ## End of all options
+              shift; break;;
+            -*) echo "Error: Unknown option: ${1}"
+              exit 1;;
+            *) ## No more options;
+	      break;;
         esac
 done
 
@@ -68,9 +68,6 @@ if [[ "${1}" == "" ]] | [ -z "${1}" ]; then
     fullusage
     exit 1
 fi
-
-## Get the process/app name
-PROCESS_NAME="${1}"
 
 ## Find and isolate PIDs
 PIDS=$(pgrep "${PROCESS_NAME}")
