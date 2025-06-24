@@ -189,8 +189,8 @@ then
         If_speed=10Mb
 fi
 
-##
 ## 
+## Function calculate_traffic()
 ##
 calculate_traffic()
 {
@@ -236,7 +236,7 @@ calculate_traffic()
         ## Debug
         if [[ "${test}" == "yes" ]];
         then
-			echo "Debug: Interface ${If} IfinBits=${IfinBits} IfOutBits=${IfOutBits} Ifflg_created=${Ifflg_created}"
+	    echo "Debug: Interface ${If} IfinBits=${IfinBits} IfOutBits=${IfOutBits} Ifflg_created=${Ifflg_created}"
             echo "Debug: Interface ${If} Time:${time_now} Last_IfinBits:${last_IfinBits} Last_IfOutBits:${last_IfOutBits}"
         fi
 
@@ -314,7 +314,7 @@ calculate_traffic()
             echo "Dubug: Interface ${If} diff_IfOutBits=${diff_IfOutBits} total=${total} IfOut_traffic=${IfOut_traffic} counter=${counter}"
         fi
 
-		## Exit if NaN result
+	## Exit if NaN result
         if [[ "${Ifin_traffic}" == "NaN" ]] || [[ "${IfOut_traffic}" == "NaN" ]];
         then
             if [[ "${test}" == "yes" ]];
@@ -657,4 +657,5 @@ recalculate_all_traffic
 display_results
 
 exit 0
+
 
