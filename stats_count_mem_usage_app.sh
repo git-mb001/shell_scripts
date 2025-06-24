@@ -51,21 +51,20 @@ EOF
 while :
 do
         case "${1}" in
-	    -p | --process_name) PROCESS_NAME="${1}"; shift 2;;
+	    -p | --process_name) PROCESS_NAME="${2}"; shift 2;;
             -h | --help) fullusage; exit;;
             --) ## End of all options
               shift; break;;
             -*) echo "Error: Unknown option: ${1}"
               exit 1;;
             *) ## No more options;
-	      break;;
+                  break;;
         esac
 done
 
 ## Check if process/app where specified
-if [[ "${1}" == "" ]] | [ -z "${1}" ]; then
+if [[ "${PROCESS_NAME}" == "" ]] | [ -z "${PROCESS_NAME}" ]; then
     echo "Error, Process name is not present.."
-    fullusage
     exit 1
 fi
 
@@ -95,7 +94,7 @@ done
 TOTAL_USAGE=$(bc <<< "scale=2; $TOTAL_MEMORY / 1048576")
 
 ## Display results
-echo -e "OK :: Process '${PROCESS_NAME}' overall is using ${TOTAL_USAGE} GB |total_usage="${TOTAL_USAGE}"GB;;;;"
+echo -e "OK :: Process '${PROCESS_NAME}' is using ${TOTAL_USAGE} GB of memory |total_usage="${TOTAL_USAGE}"GB;;;;"
 
 ## Exit plugin normally
 exit 0
