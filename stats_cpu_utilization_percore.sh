@@ -41,8 +41,8 @@ USAGE:
 ${PROGRAM} [-h|--help] | [-m|--max_cores]  
 
 OPTION:
--h | --help			Print detailed help
--m | --max_cores  	Set maximum number of cores; this value can be larger then actual number of cores, but shouldn't be lower (default is 100).
+-h | --help            Print detailed help
+-m | --max_cores       Set maximum number of cores; this value can be larger then actual number of cores, but shouldn't be lower (default is 100).
 
 EOF
 }
@@ -53,15 +53,15 @@ EOF
 while :
 do
         case "$1" in
-        -m | --max_cores) max_cores=$2; shift 2;;
-        -h | --help) fullusage; exit;;
-        --) ## End of all options
-             shift;
-             break;;
-        -*) echo "Error: Unknown option: $1"
-             exit 1;;
-         *) ## No more options;
-             break;;
+            -m | --max_cores) max_cores=$2; shift 2;;
+            -h | --help) fullusage; exit;;
+            --) ## End of all options
+              shift;
+              break;;
+            -*) echo "Error: Unknown option: $1"
+              exit 1;;
+            *) ## No more options;
+              break;;
         esac
 done
 
