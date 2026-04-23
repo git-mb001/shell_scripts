@@ -1,0 +1,16 @@
+/data/backup_perf/.snapshot/weekly.0/journal/ckp.gz
+/data/backup_perf/.snapshot/weekly.0/journal/jnl.gz
+/data/backup_perf/.snapshot/weekly.0/depot
+/data/backup_pod/.snapshot/weekly.0/ca
+/data/backup_pod/.snapshot/weekly.0/fs
+/data/backup_pod/.snapshot/weekly.0/ldap.ldif
+/data/backup_pod/.snapshot/weekly.0/mysql.sql.gz
+/data/backup_mysql/.snapshot/weekly.0/it-ie-mysql02/archived
+/data/backup_jasper/.snapshot/weekly.0/archived
+/data/it/.snapshot/weekly.0/configs
+/data/it/.snapshot/weekly.0/scripts
+/data/it/.snapshot/weekly.0/yum/rhel/5.5/x86_64/addons
+/data/it/.snapshot/weekly.0/yum/rhel/5.6/x86_64/addons
+/data/it/.snapshot/weekly.0/yum/rhel/6.0/x86_64/addons
+/data/backup_general/.snapshot/weekly.0
+

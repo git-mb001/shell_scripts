@@ -1,0 +1,8 @@
+//192.168.2.17/dir1 /data/cifs/fasB/dir1/~snapshot/weekly.0
+//192.168.2.16/dir2 /data/cifs/fasA/dir2/~snapshot/weekly.0
+//192.168.2.16/dir3 /data/cifs/fasA/dir3/~snapshot/weekly.0
+//192.168.2.16/dir4 /data/cifs/fasA/dir4/~snapshot/weekly.0
+//192.168.2.16/dir5 /data/cifs/fasA/dir5/~snapshot/weekly.0
+//192.168.2.16/dir6 /data/cifs/fasA/dir6/~snapshot/weekly.0
+//192.168.2.16/dir7 /data/cifs/fasA/dir7/~snapshot/weekly.0
+//192.168.2.16/dir8 /data/cifs/fasA/dir8/~snapshot/weekly.0
