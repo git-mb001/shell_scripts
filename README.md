@@ -4,7 +4,7 @@ Public repo with opensource shell scripts (BASH).<br/><br/>
 
 Script name: **<ins>/Tape Backup/tape_drive-backup.sh</ins>**<br/>
 Description: This comprehensive script performs TBU (tape drive unit) backup/restore using pre-prepared .txt and .in files with paths to NFS and SMB
-             shares and important TBU inventory info. Script has also functionality to rewind, show library status, tape content or load/unload the tape.
+             shares and important TBU inventory info. Script has also functionality to rewind, show library status, tape content or load/unload the tape.<br/><br/>
 
 
 Script name: **<ins>stats_cpu_utilization_percore.sh</ins>**<br/>
