@@ -2,6 +2,11 @@
 Public repo with opensource shell scripts (BASH).<br/><br/>
 
 
+Script name: **<ins>/Tape Backup/tape_drive-backup.sh</ins>**<br/>
+Description: This comprehensive script performs TBU (tape drive unit) backup/restore using pre-prepared .txt and .in files with paths to NFS and SMB
+             shares and important TBU inventory info. Script has also functionality to rewind, show library status, tape content or load/unload the tape.
+
+
 Script name: **<ins>stats_cpu_utilization_percore.sh</ins>**<br/>
 Description: This is a plugin for analyzing per-core CPU metrics, including automatic number of cores detection and CPU usage aggregation.<br/><br/>
 
